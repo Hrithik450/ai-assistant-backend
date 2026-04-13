@@ -1,6 +1,6 @@
-# Django URL Patterns (Minimal)
+# URL Patterns - Quick Guide
 
-## Basic
+## Basic Structure
 
 ```python
 from django.urls import path
@@ -11,16 +11,11 @@ urlpatterns = [
 ]
 ```
 
----
+path() -> maps a URL to a view.
+views.home -> function or class based view handling the request.
+name='home' -> namespace, used for reverse URL lookup.
 
-## Multiple URLs
-
-```python
-urlpatterns = [
-    path('about/', views.about, name='about'),
-    path('contact/', views.contact, name='contact'),
-]
-```
+[Read more about ViewSet](docs/viewset.md)
 
 ---
 
@@ -42,13 +37,13 @@ from django.urls import path, include
 urlpatterns = [
     path('api/', include('api.urls')),
 ]
+
+Includes URL patterns from another app, allowing you to split and organize routes across multiple files (e.g., routing all `/api/` requests to `api.urls`).
 ```
 
 ---
 
 ## Reverse URL
-
-### Python
 
 ```python
 from django.urls import reverse
@@ -56,16 +51,6 @@ from django.urls import reverse
 reverse('home')
 ```
 
-### Template
+Generates the URL from its name instead of hardcoding the path, making your code flexible and safe if URLs change.
 
-```html
-<a href="{% url 'home' %}">Home</a>
-```
-
----
-
-## Key Points
-
-- `urlpatterns` → list of routes
-- `path()` → connects URL to view
-- `name` → used for reverse lookup
+[Read more about Reverse lookup](docs/reverse_lookup.md)
