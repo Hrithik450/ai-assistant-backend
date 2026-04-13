@@ -29,7 +29,7 @@ path('user/<int:id>/', views.user_detail, name='user_detail')
 
 ---
 
-## Include (App Routing)
+## Including URL Patterns from Other Apps
 
 ```python
 from django.urls import path, include
