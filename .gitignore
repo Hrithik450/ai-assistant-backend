@@ -160,7 +160,8 @@ typings/
 .devcontainer/bash_history
 
 
-
+# env
+.env 
 
 ### Windows template
 # Windows thumbnail cache files
