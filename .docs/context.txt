@@ -1,0 +1,44 @@
+Context (automatic resource management):
+	Controlled environment where Python manages resources or variable state automatically.
+	It controls:
+		resources (files, DB connections).
+		temporary settings, variables that exist only in a specific scope.
+
+Context manager (object):
+	Handles context setup + cleanup automatically.
+	example:
+		with open("file.txt", "r") as f:
+    			data = f.read()
+	Here python creates context, opens the file, runs your code, automatically closes the file.
+
+Context manager protocol:
+	A class becomes a context manager If it has:
+		__enter__()
+		__exit__()
+	example:
+		class MyContext:
+			def __enter__(self):
+				print("Entering")
+				return self
+
+			def __exit__(self, exc_type, exc_value, traceback):
+				print("Exiting")
+
+		with MyContext():
+			print("Inside block")
+
+Context vars:
+	Different type of context used for:
+		async programming, thread-safe variables.
+	example:
+		from contextvars import ContextVar
+
+		user = ContextVar("user")
+
+		user.set("Hruthik")
+		print(user.get())
+	Here a separate variable state per request/task/thread is created.
+
+Context object:
+	This is the internal object that stores:
+	•	key-value pairs (like ContextVar)

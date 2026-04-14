@@ -6,14 +6,19 @@ from pathlib import Path
 
 import environ
 
+# returns the base directory: root dir.
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
 # django_app/
 APPS_DIR = BASE_DIR / "django_app"
+
+# creates an env object that helps to read environment variable easily.
 env = environ.Env()
 
+# DJANGO_READ_DOT_ENV_FILE ensures to load env file or not
 READ_DOT_ENV_FILE = env.bool("DJANGO_READ_DOT_ENV_FILE", default=False)
 if READ_DOT_ENV_FILE:
     # OS environment variables take precedence over variables from .env
+    # loads env variables from root/.env
     env.read_env(str(BASE_DIR / ".env"))
 
 # GENERAL
@@ -24,7 +29,7 @@ DEBUG = env.bool("DJANGO_DEBUG", False)
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # though not all of them may be available with every OS.
 # In Windows, this must be set to your system time zone.
-TIME_ZONE = "+05:30"
+TIME_ZONE = "Asia/Kolkata"
 # https://docs.djangoproject.com/en/dev/ref/settings/#language-code
 LANGUAGE_CODE = "en-us"
 # https://docs.djangoproject.com/en/dev/ref/settings/#languages
@@ -35,12 +40,19 @@ LANGUAGE_CODE = "en-us"
 #     ('pt-br', _('Portuguese')),
 # ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#site-id
+# ensures it reads row 1 of the table django_site to get domain name.
 SITE_ID = 1
+
 # https://docs.djangoproject.com/en/dev/ref/settings/#use-i18n
+# Internationalization (enables translation system).
 USE_I18N = True
+
 # https://docs.djangoproject.com/en/dev/ref/settings/#use-tz
+# ensures time is stored in UTC, converts to local timezone as per requirement.
 USE_TZ = True
+
 # https://docs.djangoproject.com/en/dev/ref/settings/#locale-paths
+# directory of translation files.
 LOCALE_PATHS = [str(BASE_DIR / "locale")]
 
 # DATABASES
@@ -53,44 +65,51 @@ DATABASES = {
         default="postgres:///django_app",
     ),
 }
+
+# wraps each and every request in a database transaction.
 DATABASES["default"]["ATOMIC_REQUESTS"] = True
+
 # https://docs.djangoproject.com/en/stable/ref/settings/#std:setting-DEFAULT_AUTO_FIELD
+# default primary key type for models.
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # URLS
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#root-urlconf
+# ensures url routing starts from here.
 ROOT_URLCONF = "config.urls"
+
 # https://docs.djangoproject.com/en/dev/ref/settings/#wsgi-application
+# ensures entry point for the web server.
 WSGI_APPLICATION = "config.wsgi.application"
 
 # APPS
 # ------------------------------------------------------------------------------
 DJANGO_APPS = [
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.sites",
-    "django.contrib.messages",
-    "django.contrib.staticfiles",
+    "django.contrib.auth", # login, users
+    "django.contrib.contenttypes", # user sessions
+    "django.contrib.sites", # domain handling
+    "django.contrib.messages", # success/error messages
+    "django.contrib.staticfiles", # css, js, images static files handling
     # "django.contrib.humanize", # Handy template tags
-    "django.contrib.admin",
-    "django.forms",
+    "django.contrib.admin", # admin panel
+    "django.forms", # forms
 ]
 THIRD_PARTY_APPS = [
-    "crispy_forms",
+    "crispy_forms", # better ui for forms
     "crispy_bootstrap5",
-    "allauth",
+    "allauth", # authentication system.
     "allauth.account",
     "allauth.mfa",
     "allauth.socialaccount",
-    "django_celery_beat",
+    "django_celery_beat", # background jobs scheduling.
     "rest_framework",
     "rest_framework.authtoken",
-    "corsheaders",
-    "drf_spectacular",
+    "corsheaders", # allows specified origins to be associated with backend.
+    "drf_spectacular", # API docs (Swagger) 
 ]
 
+# user defined apps
 LOCAL_APPS = [
     "django_app.users",
     # Your stuff: custom apps go here
@@ -101,6 +120,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 # MIGRATIONS
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#migration-modules
+# for sites app, use migrations from this location instead of default one.
 MIGRATION_MODULES = {"sites": "django_app.contrib.sites.migrations"}
 
 # AUTHENTICATION
@@ -115,6 +135,7 @@ AUTH_USER_MODEL = "users.User"
 # https://docs.djangoproject.com/en/dev/ref/settings/#login-redirect-url
 LOGIN_REDIRECT_URL = "users:redirect"
 # https://docs.djangoproject.com/en/dev/ref/settings/#login-url
+# account_login will be provided by django-allauth
 LOGIN_URL = "account_login"
 
 # PASSWORDS
@@ -140,39 +161,48 @@ AUTH_PASSWORD_VALIDATORS = [
 # MIDDLEWARE
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#middleware
+# functions that run before and after every request.
 MIDDLEWARE = [
-    "django.middleware.security.SecurityMiddleware",
-    "corsheaders.middleware.CorsMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
-    "django.middleware.locale.LocaleMiddleware",
-    "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
-    "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "django.contrib.messages.middleware.MessageMiddleware",
-    "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "allauth.account.middleware.AccountMiddleware",
+    "django.middleware.security.SecurityMiddleware", # https redirects, security headers.
+    "corsheaders.middleware.CorsMiddleware", # cors policy.
+    "whitenoise.middleware.WhiteNoiseMiddleware", # handles static files in production.
+    "django.contrib.sessions.middleware.SessionMiddleware", # handles sessions.
+    "django.middleware.locale.LocaleMiddleware", # language selection.
+    "django.middleware.common.CommonMiddleware", # url normalization, adds trailing slashes if missed.
+    "django.middleware.csrf.CsrfViewMiddleware", # handles csrf attacks.
+    "django.contrib.auth.middleware.AuthenticationMiddleware", # adds request.user to every incoming request.
+    "django.contrib.messages.middleware.MessageMiddleware", # enables success/error messages
+    "django.middleware.clickjacking.XFrameOptionsMiddleware", # handles clickjacking attacks
+    "allauth.account.middleware.AccountMiddleware", # handles login/signup flow, account-related features.
 ]
 
 # STATIC
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#static-root
+# django will collect all static files in this dir for production.
+# python manage.py collectstatic (use with this command to copy all static files into here for production usage).
 STATIC_ROOT = str(BASE_DIR / "staticfiles")
 # https://docs.djangoproject.com/en/dev/ref/settings/#static-url
+# url prefix to access static files. i,e: <link href="/static/css/style.css">
 STATIC_URL = "/static/"
 # https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#std:setting-STATICFILES_DIRS
+# ensures django loads static files from here during development mode.
 STATICFILES_DIRS = [str(APPS_DIR / "static")]
 # https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#staticfiles-finders
+# django searches for static files in STATICFILES_DIRS using FileSystemFinder and inside each apps using AppDirectoriesFinder.
 STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 ]
 
-# MEDIA
+# MEDIA (files uploaded by users)
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#media-root
+# collects all user uploaded files into this dir.
 MEDIA_ROOT = str(APPS_DIR / "media")
+
 # https://docs.djangoproject.com/en/dev/ref/settings/#media-url
+# url prefix to access uploaded files.
 MEDIA_URL = "/media/"
 
 # TEMPLATES
@@ -204,24 +234,32 @@ TEMPLATES = [
 ]
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#form-renderer
+# Render forms using the template system defined in TEMPLATES setting.
 FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 
 # http://django-crispy-forms.readthedocs.io/en/latest/install.html#template-packs
+# ensures bootstrap 5 styles for forms.
 CRISPY_TEMPLATE_PACK = "bootstrap5"
+
+# only allows bootstrap5 templates to be used.
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 
 # FIXTURES
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#fixture-dirs
+# loads all fixtures (predefined data files) files from this dir. i,e: python manage.py loaddata users.json
 FIXTURE_DIRS = (str(APPS_DIR / "fixtures"),)
 
 # SECURITY
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#session-cookie-httponly
+# prevents javascript from accessing session cookies. prevents if attacker injects JS which could steal token.
 SESSION_COOKIE_HTTPONLY = True
 # https://docs.djangoproject.com/en/dev/ref/settings/#csrf-cookie-httponly
+# prevents javascript from accessing CSRF token cookie, attack where user is logged in, malicious site sends request on their behalf.
 CSRF_COOKIE_HTTPONLY = True
 # https://docs.djangoproject.com/en/dev/ref/settings/#x-frame-options
+# prevents your site from being loaded inside an <iframe>
 X_FRAME_OPTIONS = "DENY"
 
 # EMAIL
@@ -237,7 +275,7 @@ EMAIL_TIMEOUT = 5
 # ADMIN
 # ------------------------------------------------------------------------------
 # Django Admin URL.
-ADMIN_URL = "admin/"
+ADMIN_URL = "secure-admin/"
 # https://docs.djangoproject.com/en/dev/ref/settings/#admins
 ADMINS = ['"Hruthik M" <mhrithik450@gmail.com>']
 # https://docs.djangoproject.com/en/dev/ref/settings/#managers
@@ -246,7 +284,7 @@ MANAGERS = ADMINS
 # Force the `admin` sign in process to go through the `django-allauth` workflow
 DJANGO_ADMIN_FORCE_ALLAUTH = env.bool("DJANGO_ADMIN_FORCE_ALLAUTH", default=False)
 
-# LOGGING
+# LOGGING (records what the app is doing).
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#logging
 # See https://docs.djangoproject.com/en/dev/topics/logging for
@@ -312,6 +350,7 @@ CELERY_WORKER_SEND_TASK_EVENTS = True
 CELERY_TASK_SEND_SENT_EVENT = True
 # https://docs.celeryq.dev/en/stable/userguide/configuration.html#worker-hijack-root-logger
 CELERY_WORKER_HIJACK_ROOT_LOGGER = False
+
 # django-allauth
 # ------------------------------------------------------------------------------
 ACCOUNT_ALLOW_REGISTRATION = env.bool("DJANGO_ACCOUNT_ALLOW_REGISTRATION", True)
@@ -346,6 +385,9 @@ REST_FRAMEWORK = {
 
 # django-cors-headers - https://github.com/adamchainz/django-cors-headers#setup
 CORS_URLS_REGEX = r"^/api/.*$"
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+]
 
 # By Default swagger ui is available only to admin user(s). You can change permission classes to change that
 # See more configuration options at https://drf-spectacular.readthedocs.io/en/latest/settings.html#settings

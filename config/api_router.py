@@ -7,7 +7,7 @@ from rest_framework.routers import SimpleRouter
 
 from django_app.users.api.views import UserViewSet
 
-# Default router: provides a special page /api/ that lists all your endpoints (clickable) like a menu. generates api routes. useful for debugging purpose.
+# Default router: generates api routes and provides a special page /api/ that lists all your endpoints (clickable) like a menu. useful for debugging purpose.
 # Simple router: no special page, only generates api routes.
 router = DefaultRouter() if settings.DEBUG else SimpleRouter()
 
